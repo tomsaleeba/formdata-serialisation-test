@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width" />
+  <title>Some test</title>
+</head>
+
+<body>
+  <h1>JPG</h1>
+  <pre id="jpg-output">(nothing yet)</pre>
+  <h1>PNG</h1>
+  <pre id="png-output">(nothing yet)</pre>
+  <script charset="utf-8">
+    formDataToText('jpg-output', './cannon-100px.jpg')
+    formDataToText('png-output', './png-transparent.png')
+
+    async function formDataToText(outputElementId, imagePath) {
+      const target = document.getElementById(outputElementId)
+      const fd = new FormData()
+      fd.append('observation_photo[observation_id]', 3250)
+      const file = await getFile(imagePath)
+      fd.append('file', file)
+      const req = new Request('/v1/observation_photos', {
+        method: 'POST',
+        body: fd
+      })
+      req.text().then(result => {
+        target.innerText = result
+      })
+    }
+
+    async function getFile(path) {
+      const resp = await fetch(path)
+      const blob = await resp.blob()
+      const extension = path.substring(path.lastIndexOf('.') + 1)
+      const mime = 'image/' + extension
+      return new File([blob], 'some-photo', {
+        type: mime
+      })
+    }
+  </script>
+</body>
+
+</html>
